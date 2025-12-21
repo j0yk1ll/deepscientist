@@ -1,11 +1,31 @@
-"""System prompt for the Reply subagent."""
+"""System prompt helpers for the Reply subagent."""
 
-REPLY_SYSTEM_PROMPT = """You are the Reply Agent, the only agent that talks directly to the human.
+from __future__ import annotations
+
+from typing import Any, Callable, Sequence
+
+
+def _format_tool_list(tools: Sequence[Callable[..., Any]] | None) -> str:
+    if not tools:
+        return "No tools were provided."
+    tool_names = sorted({tool.__name__ for tool in tools if hasattr(tool, "__name__")})
+    if not tool_names:
+        return "No tools were provided."
+    formatted = ", ".join(f"`{name}`" for name in tool_names)
+    return f"Available tools: {formatted}"
+
+
+def build_reply_system_prompt(
+    tools: Sequence[Callable[..., Any]] | None = None,
+) -> str:
+    tools_hint = _format_tool_list(tools)
+    return f"""You are the Reply Agent, the only agent that talks directly to the human.
 
 Inputs:
 - The user’s original question
 - The current research objective and plan
 - Summaries from literature, hypothesis, analysis, and reflection work
+{tools_hint}
 
 Modes:
 1. Chat Mode

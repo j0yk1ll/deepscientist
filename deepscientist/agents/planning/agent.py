@@ -3,7 +3,7 @@ from typing import Optional, Sequence, Callable, Any
 from deepagents import create_deep_agent, CompiledSubAgent
 from langchain.chat_models import init_chat_model
 
-from .system_prompt import PLANNING_SYSTEM_PROMPT
+from .system_prompt import build_planning_system_prompt
 
 def _build_planning_deep_agent(
     model: Optional[Any] = None,
@@ -16,7 +16,7 @@ def _build_planning_deep_agent(
     return create_deep_agent(
         model=model,
         tools=tools,
-        system_prompt=PLANNING_SYSTEM_PROMPT,
+        system_prompt=build_planning_system_prompt(tools),
     )
 
 def create_planning_subagent(

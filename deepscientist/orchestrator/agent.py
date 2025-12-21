@@ -19,6 +19,12 @@ from deepagents.middleware import (
 )
 
 from deepscientist.tools import (
+    clear_papers_and_evidence,
+    gather_evidence,
+    search_citations,
+    search_paper_by_doi,
+    search_paper_by_title,
+    search_papers,
     search_web,
 )
 
@@ -101,6 +107,12 @@ def create_orchestrator_agent(
     
     literature_tools = [
         search_web,
+        search_papers,
+        search_paper_by_doi,
+        search_paper_by_title,
+        gather_evidence,
+        search_citations,
+        clear_papers_and_evidence,
     ]
     
     hypothesis_tools = []
