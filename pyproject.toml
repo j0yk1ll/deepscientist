@@ -1,16 +1,36 @@
 [project]
 name = "deepscientist"
 version = "0.1.0"
-description = "Add your description here"
+description = "AI-powered scientific research assistant with knowledge graph capabilities"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "deepagents",
-    "langchain>=1.1.3",
-    "langchain-anthropic>=1.3.0",
-    "langchain-openai>=1.1.3",
-    "python-dotenv>=1.2.1",
+    "literature-retrieval-engine",
+    "langchain",
+    "langchain-anthropic",
+    "langchain-openai",
+    "python-dotenv",
+    "pydantic",
+    "typing_extensions",
 ]
 
+[project.optional-dependencies]
+viz = ["neo4j-viz", "pyvis"]
+
 [tool.uv.sources]
-deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", subdirectory = "libs/deepagents" }
+deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", branch = "main", subdirectory = "libs/deepagents" }
+literature-retrieval-engine = { git = "ssh://git@github.com/j0yk1ll/literature-retrieval-engine.git", branch = "main" }
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[dependency-groups]
+tests = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pytest-mock",
+    "httpx",
+]

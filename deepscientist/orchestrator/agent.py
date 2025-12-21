@@ -20,11 +20,6 @@ from deepagents.middleware import (
 
 from deepscientist.tools import (
     search_web,
-    search_arxiv,
-    search_biorxiv,
-    search_chemrxiv,
-    search_medrxiv,
-    search_kb,
 )
 
 from deepscientist.agents import (
@@ -94,7 +89,7 @@ def create_orchestrator_agent(
         trigger = ("tokens", int(tokens) if tokens is not None else 64000)
         keep = ("messages", 6)
         
-    root_dir = os.environ.get("DEEPSCIENTIST_WORKSPACE", "./workspace")
+    root_dir = os.environ.get("WORKSPACE", "./workspace")
     
     default_tools = []
 
@@ -105,11 +100,6 @@ def create_orchestrator_agent(
     planning_tools = []
     
     literature_tools = [
-        search_arxiv,
-        search_biorxiv,
-        search_chemrxiv,
-        search_medrxiv,
-        search_kb,
         search_web,
     ]
     
