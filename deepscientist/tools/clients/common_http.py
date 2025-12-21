@@ -4,7 +4,7 @@ from typing import Optional
 
 import httpx
 
-from .settings import Settings
+from ...settings import Settings
 
 logger = logging.getLogger(__name__)
 

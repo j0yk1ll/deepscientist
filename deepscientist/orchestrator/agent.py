@@ -24,7 +24,7 @@ from deepscientist.tools import (
     search_papers,
     search_web,
 )
-from deepscientist.tools.clients.settings import Settings
+from deepscientist.settings import Settings
 
 from deepscientist.agents import (
     create_file_upload_subagent,
