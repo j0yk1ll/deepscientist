@@ -4,6 +4,8 @@ from typing import Optional
 
 import httpx
 
+from .settings import Settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,13 +32,10 @@ def parse_year_from_iso(date_str: Optional[str]) -> Optional[int]:
             return None
 
 
-def make_http_client() -> httpx.Client:
+def make_http_client(settings: Optional[Settings] = None) -> httpx.Client:
     """Create a configured httpx.Client for all tools.
 
     Centralised here so you can tweak timeouts, headers, proxies, etc. in one place.
     """
-    return httpx.Client(
-        timeout=httpx.Timeout(30.0, connect=10.0),
-        follow_redirects=True,
-        headers={"User-Agent": "Kosmos-Preprint-Client/1.0"},
-    )
+    effective_settings = settings or Settings()
+    return effective_settings.build_client()
