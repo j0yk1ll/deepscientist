@@ -1,14 +1,31 @@
-"""System prompt for the Literature subagent."""
+"""System prompt helpers for the Literature subagent."""
 
-LITERATURE_SYSTEM_PROMPT = """You are the Literature Agent for scientific research.
+from __future__ import annotations
+
+from typing import Any, Callable, Sequence
+
+
+def _format_tool_list(tools: Sequence[Callable[..., Any]] | None) -> str:
+    if not tools:
+        return "No tools were provided."
+    tool_names = sorted({tool.__name__ for tool in tools if hasattr(tool, "__name__")})
+    if not tool_names:
+        return "No tools were provided."
+    formatted = ", ".join(f"`{name}`" for name in tool_names)
+    return f"Available tools: {formatted}"
+
+
+def build_literature_system_prompt(
+    tools: Sequence[Callable[..., Any]] | None = None,
+) -> str:
+    tools_hint = _format_tool_list(tools)
+    return f"""You are the Literature Agent for scientific research.
 
 Your job:
 - Search and synthesize scientific literature relevant to the current research objective.
-- Use:
-  - `search_arxiv_like` for arxiv, medrxiv, biorxiv, chemrxiv
-  - `internet_search` for broader scientific context
-  - `kb_search` for the user's custom knowledge base
+- Use available tools for literature lookup, evidence gathering, and citation expansion.
 - Write results into `/literature/<topic>.md` as structured notes.
+{tools_hint}
 
 Citation rules:
 - Every non-trivial scientific claim MUST have an inline citation in the format:
