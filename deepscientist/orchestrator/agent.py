@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import os
 from typing import Any
-
-from dotenv import load_dotenv
 
 from langchain.chat_models import init_chat_model
 from langchain.agents.middleware.summarization import SummarizationMiddleware
@@ -27,6 +24,7 @@ from deepscientist.tools import (
     search_papers,
     search_web,
 )
+from deepscientist.tools.clients.settings import Settings
 
 from deepscientist.agents import (
     create_file_upload_subagent,
@@ -52,21 +50,13 @@ def create_orchestrator_agent(
         Optional LangChain chat model instance. If omitted, a default OpenAI
         model is initialized via `init_chat_model("openai:gpt-4.1")`.
     """
+    settings = Settings()
     if model is None:
-        # Load environment variables from a .env file if present.
-        # This uses python-dotenv so the project dependency was added.
-        load_dotenv()
         # Initialize a provider-backed chat model using `init_chat_model`.
-        # Environment vars supported (see `.env.example`):
-        # - LM_MODEL (model identifier, default: "gpt-5-nano")
-        # - LM_BASE_URL (optional OpenAI-compatible base URL)
-        # - LM_API_KEY (optional API key)
-        # - LM_TEMPERATURE (optional float)
-        model_name = os.environ.get("LM_MODEL", "gpt-5-nano")
-        base_url = os.environ.get("LM_BASE_URL") or None
-        api_key = os.environ.get("LM_API_KEY") or None
-        temp = os.environ.get("LM_TEMPERATURE")
-        temperature = float(temp) if temp not in (None, "") else None
+        model_name = settings.lm_model
+        base_url = settings.lm_base_url
+        api_key = settings.lm_api_key
+        temperature = settings.lm_temperature
 
         # Use 'openai' as the model provider by default. This works for
         # OpenAI as well as OpenAI-compatible endpoints (LM Studio, OpenRouter, etc.).
@@ -91,11 +81,10 @@ def create_orchestrator_agent(
         trigger = ("fraction", 0.85)
         keep = ("fraction", 0.10)
     else:
-        tokens = os.environ.get("LM_MAX_INPUT_TOKENS")
-        trigger = ("tokens", int(tokens) if tokens is not None else 64000)
+        trigger = ("tokens", settings.lm_max_input_tokens)
         keep = ("messages", 6)
         
-    root_dir = os.environ.get("WORKSPACE", "./workspace")
+    root_dir = settings.workspace_root
     
     default_tools = []
 
