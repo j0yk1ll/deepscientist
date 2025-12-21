@@ -152,6 +152,8 @@ Required environment variables:
 Optional:
 - `LM_MODEL` - Model to use (default: gpt-4.1-mini)
 - `LM_BASE_URL` - Base URL for OpenAI-compatible endpoints
+- `LM_TEMPERATURE` - Temperature for model responses (0.0 = deterministic)
+- `LM_MAX_INPUT_TOKENS` - Maximum input tokens before summarization triggers
 - `NEO4J_URI` - Neo4j connection URI (default: bolt://localhost:7687)
 - `NEO4J_USER` / `NEO4J_PASSWORD` - Neo4j credentials
 - `WORKSPACE` - Filesystem root for agent workspace

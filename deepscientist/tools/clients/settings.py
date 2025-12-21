@@ -12,12 +12,18 @@ import httpx
 
 @dataclass(slots=True)
 class Settings:
-    """Configuration for HTTP clients and external integrations."""
+    """Configuration for HTTP clients, LLM runtime, and external integrations."""
 
     timeout: float = 10.0
     user_agent: str = "Kosmos-Preprint-Client/1.0"
     unpaywall_email: Optional[str] = None
     grobid_base_url: Optional[str] = None
+    lm_model: str = "gpt-4.1-mini"
+    lm_base_url: Optional[str] = None
+    lm_api_key: Optional[str] = None
+    lm_temperature: Optional[float] = 0.0
+    lm_max_input_tokens: int = 32768
+    workspace_root: str = "./workspace"
     client: Optional[httpx.Client] = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
@@ -36,6 +42,30 @@ class Settings:
         env_grobid_url = self._get_env_value("RETRIEVAL_GROBID_URL")
         if env_grobid_url and self.grobid_base_url is None:
             self.grobid_base_url = env_grobid_url
+
+        env_lm_model = self._get_env_value("LM_MODEL")
+        if env_lm_model and self.lm_model == "gpt-4.1-mini":
+            self.lm_model = env_lm_model
+
+        env_lm_base_url = self._get_env_value("LM_BASE_URL")
+        if env_lm_base_url and self.lm_base_url is None:
+            self.lm_base_url = env_lm_base_url
+
+        env_lm_api_key = self._get_env_value("LM_API_KEY")
+        if env_lm_api_key and self.lm_api_key is None:
+            self.lm_api_key = env_lm_api_key
+
+        env_lm_temperature = self._get_env_value("LM_TEMPERATURE")
+        if env_lm_temperature and self.lm_temperature == 0.0:
+            self.lm_temperature = float(env_lm_temperature)
+
+        env_lm_max_tokens = self._get_env_value("LM_MAX_INPUT_TOKENS")
+        if env_lm_max_tokens and self.lm_max_input_tokens == 32768:
+            self.lm_max_input_tokens = int(env_lm_max_tokens)
+
+        env_workspace = self._get_env_value("WORKSPACE")
+        if env_workspace and self.workspace_root == "./workspace":
+            self.workspace_root = env_workspace
 
     def build_client(self) -> httpx.Client:
         """Return a configured :class:`httpx.Client` using the settings."""
