@@ -22,6 +22,7 @@ literature-retrieval-engine = { git = "https://github.com/j0yk1ll/literature-ret
 
 [dependency-groups]
 dev = [
+    "langfuse",
     "responses",
     "ruff",
     "mypy",
