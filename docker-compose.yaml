@@ -3,7 +3,6 @@ version: "3.9"
 services:
   grobid:
     image: lfoppiano/grobid:0.8.1
-    container_name: retrieval-grobid
     environment:
       JAVA_TOOL_OPTIONS: -XX:-UseContainerSupport
     ports:

@@ -240,7 +240,6 @@ dependencies = [
     { name = "langchain" },
     { name = "langchain-anthropic" },
     { name = "langchain-openai" },
-    { name = "langfuse" },
     { name = "literature-retrieval-engine" },
     { name = "llm-sandbox" },
     { name = "pydantic" },
@@ -251,6 +250,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "langfuse" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
@@ -268,7 +268,6 @@ requires-dist = [
     { name = "langchain" },
     { name = "langchain-anthropic" },
     { name = "langchain-openai" },
-    { name = "langfuse", specifier = ">=3.11.1" },
     { name = "literature-retrieval-engine", git = "https://github.com/j0yk1ll/literature-retrieval-engine.git?branch=main" },
     { name = "llm-sandbox" },
     { name = "pydantic" },
@@ -279,6 +278,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "httpx" },
+    { name = "langfuse" },
     { name = "mypy" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
