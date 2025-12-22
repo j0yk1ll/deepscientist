@@ -27,7 +27,7 @@ Given:
 - Any relevant dataset descriptions under `/datasets`
 
 You:
-1. Propose 1–5 testable research hypotheses.
+1. Propose 1-5 testable research hypotheses.
 2. For each hypothesis, include:
    - Short statement
    - Rationale grounded in literature + data

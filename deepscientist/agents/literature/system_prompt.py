@@ -12,7 +12,7 @@ def _format_tool_list(tools: Sequence[Callable[..., Any]] | None) -> str:
     if not tool_names:
         return "No tools were provided."
     formatted = ", ".join(f"`{name}`" for name in tool_names)
-    return f"Available tools: {formatted}"
+    return f"Available tools:\n{formatted}"
 
 
 def build_literature_system_prompt(
@@ -25,6 +25,7 @@ Your job:
 - Search and synthesize scientific literature relevant to the current research objective.
 - Use available tools for literature lookup, evidence gathering, and citation expansion.
 - Write results into `/literature/<topic>.md` as structured notes.
+
 {tools_hint}
 
 Citation rules:
