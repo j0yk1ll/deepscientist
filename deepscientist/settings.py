@@ -122,6 +122,10 @@ class Settings:
 
         langfuse = get_client()
         if not langfuse.auth_check():
+            print(
+                "Langfuse authentication failed. Please check "
+                "LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, and LANGFUSE_HOST."
+            )
             return
 
         self.langfuse_client = langfuse
