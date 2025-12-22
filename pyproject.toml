@@ -1,7 +1,7 @@
 [project]
 name = "deepscientist"
 version = "0.1.0"
-description = "AI-powered scientific research assistant with knowledge graph capabilities"
+description = "An AI Scientist for Autonomous Deep Research"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -16,22 +16,20 @@ dependencies = [
     "typing_extensions",
 ]
 
-[project.optional-dependencies]
-viz = ["neo4j-viz", "pyvis"]
-
 [tool.uv.sources]
-deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", branch = "main", subdirectory = "libs/deepagents" }
-literature-retrieval-engine = { git = "ssh://git@github.com/j0yk1ll/literature-retrieval-engine.git", branch = "main" }
-
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
+deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", branch = "master", subdirectory = "libs/deepagents" }
+literature-retrieval-engine = { git = "https://github.com/j0yk1ll/literature-retrieval-engine.git", branch = "main" }
 
 [dependency-groups]
-tests = [
+dev = [
+    "responses",
+    "ruff",
+    "mypy",
+    "types-requests",
     "pytest",
     "pytest-asyncio",
     "pytest-cov",
     "pytest-mock",
+    "pytest-timeout",
     "httpx",
 ]
