@@ -5,7 +5,7 @@ import importlib.util
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 
@@ -24,11 +24,17 @@ class Settings:
     lm_temperature: Optional[float] = 0.0
     lm_max_input_tokens: int = 32768
     workspace_root: str = "./workspace"
+    langfuse_public_key: Optional[str] = None
+    langfuse_secret_key: Optional[str] = None
+    langfuse_base_url: Optional[str] = None
     client: Optional[httpx.Client] = field(default=None, repr=False)
+    langfuse_client: Optional[Any] = field(default=None, repr=False)
+    langfuse_handler: Optional[Any] = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
         self._try_load_dotenv_from_project_root()
         self._apply_env_overrides()
+        self._initialize_langfuse()
 
     def _apply_env_overrides(self) -> None:
         env_timeout = self._get_env_value("RETRIEVAL_REQUEST_TIMEOUT_S")
@@ -67,6 +73,22 @@ class Settings:
         if env_workspace and self.workspace_root == "./workspace":
             self.workspace_root = env_workspace
 
+        env_langfuse_public_key = self._get_env_value("LANGFUSE_PUBLIC_KEY")
+        if env_langfuse_public_key and self.langfuse_public_key is None:
+            self.langfuse_public_key = env_langfuse_public_key
+
+        env_langfuse_secret_key = self._get_env_value("LANGFUSE_SECRET_KEY")
+        if env_langfuse_secret_key and self.langfuse_secret_key is None:
+            self.langfuse_secret_key = env_langfuse_secret_key
+
+        env_langfuse_base_url = self._get_env_value("LANGFUSE_BASE_URL")
+        if env_langfuse_base_url and self.langfuse_base_url is None:
+            self.langfuse_base_url = env_langfuse_base_url
+
+        env_langfuse_host = self._get_env_value("LANGFUSE_HOST")
+        if env_langfuse_host and self.langfuse_base_url is None:
+            self.langfuse_base_url = env_langfuse_host
+
     def build_client(self) -> httpx.Client:
         """Return a configured :class:`httpx.Client` using the settings."""
 
@@ -81,6 +103,34 @@ class Settings:
         if self.user_agent:
             client.headers.setdefault("User-Agent", self.user_agent)
         return client
+
+    def _initialize_langfuse(self) -> None:
+        if importlib.util.find_spec("langfuse") is None:
+            return
+        if self.langfuse_client is not None or self.langfuse_handler is not None:
+            return
+        if not self.langfuse_public_key or not self.langfuse_secret_key:
+            return
+
+        os.environ.setdefault("LANGFUSE_PUBLIC_KEY", self.langfuse_public_key)
+        os.environ.setdefault("LANGFUSE_SECRET_KEY", self.langfuse_secret_key)
+        if self.langfuse_base_url:
+            os.environ.setdefault("LANGFUSE_HOST", self.langfuse_base_url)
+
+        from langfuse import get_client
+        from langfuse.langchain import CallbackHandler
+
+        langfuse = get_client()
+        if not langfuse.auth_check():
+            print(
+                "Langfuse authentication failed. Please check "
+                "LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, and LANGFUSE_HOST."
+            )
+            return
+
+        self.langfuse_client = langfuse
+        self.langfuse_handler = CallbackHandler()
+
 
     def _get_env_value(self, name: str) -> Optional[str]:
         value = os.environ.get(name)
