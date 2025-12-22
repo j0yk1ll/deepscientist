@@ -9,6 +9,7 @@ from .literature import (
     search_paper_by_title,
     search_papers,
 )
+from .sandbox import create_sandbox, delete_sandbox, execute_code, list_sandboxes
 
 __all__ = [
     # Search tools
@@ -20,4 +21,9 @@ __all__ = [
     "gather_evidence",
     "search_citations",
     "clear_papers_and_evidence",
+    # Sandbox tools
+    "create_sandbox",
+    "delete_sandbox",
+    "execute_code",
+    "list_sandboxes",
 ]

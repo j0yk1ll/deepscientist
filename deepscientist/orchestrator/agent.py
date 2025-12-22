@@ -17,6 +17,10 @@ from deepagents.middleware import (
 
 from deepscientist.tools import (
     clear_papers_and_evidence,
+    create_sandbox,
+    delete_sandbox,
+    execute_code,
+    list_sandboxes,
     gather_evidence,
     search_citations,
     search_paper_by_doi,
@@ -106,7 +110,12 @@ def create_orchestrator_agent(
     
     hypothesis_tools = []
     
-    analyst_tools = []
+    analyst_tools = [
+        create_sandbox,
+        delete_sandbox,
+        execute_code,
+        list_sandboxes,
+    ]
     
     reflection_tools = []
     
