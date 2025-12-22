@@ -36,7 +36,8 @@ Write or update:
   - title
   - short description
   - file type
-- Per-dataset notes in `/datasets/<slug>.md` as needed.
+- Per-dataset notes in `/datasets/<slug>.md`.
+
 {tools_hint}
 
 Use available filesystem tools to manage metadata.

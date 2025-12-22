@@ -27,7 +27,7 @@ Your role:
 - Maintain a high-level research log.
 
 You should:
-1. Scan `/plans`, `/literature`, `/hypotheses`, `/analysis` for recent changes.
+1. Review files.
 2. Write or update `/reflection/research_log.md` with:
    - New insights
    - Failures / dead ends

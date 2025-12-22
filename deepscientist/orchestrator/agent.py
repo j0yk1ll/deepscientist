@@ -94,7 +94,12 @@ def create_orchestrator_agent(
 
     orchestrator_tools = []
     
-    file_upload_tools = []
+    file_upload_tools = [
+        create_sandbox,
+        delete_sandbox,
+        execute_code,
+        list_sandboxes,
+    ]
     
     planning_tools = []
     
