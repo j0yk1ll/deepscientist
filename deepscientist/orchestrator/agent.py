@@ -11,7 +11,6 @@ from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend, CompositeBackend
 from deepagents.middleware import (
     FilesystemMiddleware,
-    SubAgentMiddleware,
     PatchToolCallsMiddleware,
 )
 
@@ -44,7 +43,8 @@ from .system_prompt import ORCHESTRATOR_SYSTEM_PROMPT
 
 
 def create_orchestrator_agent(
-    model: Any | None = None
+    model: Any | None = None,
+    settings: Settings = Settings()
 ):
     """Create the top-level Orchestrator.
 
@@ -54,7 +54,7 @@ def create_orchestrator_agent(
         Optional LangChain chat model instance. If omitted, a default OpenAI
         model is initialized via `init_chat_model("openai:gpt-4.1")`.
     """
-    settings = Settings()
+    
     if model is None:
         # Initialize a provider-backed chat model using `init_chat_model`.
         model_name = settings.lm_model
@@ -89,8 +89,6 @@ def create_orchestrator_agent(
         keep = ("messages", 6)
         
     root_dir = settings.workspace_root
-    
-    default_tools = []
 
     orchestrator_tools = []
     
@@ -126,16 +124,6 @@ def create_orchestrator_agent(
     
     reply_tools = []
 
-    subagents = [
-        create_file_upload_subagent(model=model, tools=file_upload_tools),
-        create_planning_subagent(model=model, tools=planning_tools),
-        create_literature_subagent(model=model, tools=literature_tools),
-        create_hypothesis_subagent(model=model, tools=hypothesis_tools),
-        create_analyst_subagent(model=model, tools=analyst_tools),
-        create_reflection_subagent(model=model, tools=reflection_tools),
-        create_reply_subagent(model=model, tools=reply_tools),
-    ]
-    
     composite_backend = CompositeBackend(
         default=FilesystemBackend(root_dir=root_dir, virtual_mode=True),
         routes={
@@ -143,28 +131,11 @@ def create_orchestrator_agent(
             "/scratchpad/": FilesystemBackend(root_dir=root_dir, virtual_mode=True),
         }
     )
-    
-    interrupt_on = {}
-    
+
+
+    # Create shared middleware for subagents
     middleware = [
         FilesystemMiddleware(backend=composite_backend),
-        SubAgentMiddleware(
-            default_model=model,
-            default_tools=default_tools,
-            subagents=subagents if subagents is not None else [],
-            default_middleware=[
-                FilesystemMiddleware(backend=composite_backend),
-                SummarizationMiddleware(
-                    model=model,
-                    trigger=trigger,
-                    keep=keep,
-                    trim_tokens_to_summarize=None,
-                ),
-                PatchToolCallsMiddleware(),
-            ],
-            default_interrupt_on=interrupt_on,
-            general_purpose_agent=True,
-        ),
         SummarizationMiddleware(
             model=model,
             trigger=trigger,
@@ -174,6 +145,17 @@ def create_orchestrator_agent(
         PatchToolCallsMiddleware(),
     ]
 
+    subagents = [
+        create_file_upload_subagent(model=model, tools=file_upload_tools, middleware=middleware),
+        create_planning_subagent(model=model, tools=planning_tools, middleware=middleware),
+        create_literature_subagent(model=model, tools=literature_tools, middleware=middleware),
+        create_hypothesis_subagent(model=model, tools=hypothesis_tools, middleware=middleware),
+        create_analyst_subagent(model=model, tools=analyst_tools, middleware=middleware),
+        create_reflection_subagent(model=model, tools=reflection_tools, middleware=middleware),
+        create_reply_subagent(model=model, tools=reply_tools, middleware=middleware),
+    ]
+    
+
     agent = create_deep_agent(
         model=model,
         tools=orchestrator_tools,
@@ -181,6 +163,7 @@ def create_orchestrator_agent(
         system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
         subagents=subagents,
         backend=composite_backend,
-        store=InMemoryStore()
+        store=InMemoryStore(),
+        debug=True
     )
     return agent

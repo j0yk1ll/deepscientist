@@ -1,20 +1,15 @@
+from deepscientist.factory import create_deepscientist
+
+
 def main():
-    from deepscientist.orchestrator import create_orchestrator_agent
 
-    agent = create_orchestrator_agent()
+    agent = create_deepscientist()
 
-    result = agent.invoke(
-        {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "How do Yamanaka factors compare to small-molecule reprogramming for hepatocyte conversion?",
-                }
-            ]
-        }
+    response = agent.invoke(
+        "How do Yamanaka factors compare to small-molecule reprogramming for hepatocyte conversion?"
     )
 
-    print(result["messages"][-1].content)
+    print(response)
 
 
 if __name__ == "__main__":
