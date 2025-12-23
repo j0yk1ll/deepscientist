@@ -120,27 +120,27 @@ class TestCommonHttp:
 
     def test_parse_year_from_iso_full_timestamp(self):
         """Parse year from full ISO timestamp."""
-        from deepscientist.tools.clients.common_http import parse_year_from_iso
+        from deepscientist.tools.clients.utils import parse_year_from_iso
         
         assert parse_year_from_iso("2024-01-15T12:30:00Z") == 2024
         assert parse_year_from_iso("2023-12-31T23:59:59+00:00") == 2023
 
     def test_parse_year_from_iso_date_only(self):
         """Parse year from date-only string."""
-        from deepscientist.tools.clients.common_http import parse_year_from_iso
+        from deepscientist.tools.clients.utils import parse_year_from_iso
         
         assert parse_year_from_iso("2024-01-15") == 2024
         assert parse_year_from_iso("2022-06-30") == 2022
 
     def test_parse_year_from_iso_year_only(self):
         """Parse year from year-only string."""
-        from deepscientist.tools.clients.common_http import parse_year_from_iso
+        from deepscientist.tools.clients.utils import parse_year_from_iso
         
         assert parse_year_from_iso("2024") == 2024
 
     def test_parse_year_from_iso_returns_none_for_invalid(self):
         """Invalid strings should return None."""
-        from deepscientist.tools.clients.common_http import parse_year_from_iso
+        from deepscientist.tools.clients.utils import parse_year_from_iso
         
         assert parse_year_from_iso(None) is None
         assert parse_year_from_iso("") is None
@@ -148,7 +148,7 @@ class TestCommonHttp:
 
     def test_make_http_client_returns_client(self):
         """Should return an httpx.Client instance."""
-        from deepscientist.tools.clients.common_http import make_http_client
+        from deepscientist.tools.clients.utils import make_http_client
         import httpx
         
         client = make_http_client()

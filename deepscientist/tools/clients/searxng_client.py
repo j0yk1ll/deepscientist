@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Dict, Any, List, Optional
 
-from .common_http import make_http_client
+from .utils import make_http_client
 
 logger = logging.getLogger(__name__)
 

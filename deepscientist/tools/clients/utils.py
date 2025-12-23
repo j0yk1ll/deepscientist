@@ -1,10 +1,9 @@
+import httpx
 import logging
 from datetime import datetime
 from typing import Optional
 
-import httpx
-
-from ...settings import Settings
+from deepscientist.settings import Settings
 
 logger = logging.getLogger(__name__)
 
