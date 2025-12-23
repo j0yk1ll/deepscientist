@@ -16,10 +16,6 @@ dependencies = [
     "typing_extensions",
 ]
 
-[tool.uv.sources]
-deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", branch = "master", subdirectory = "libs/deepagents" }
-literature-retrieval-engine = { git = "https://github.com/j0yk1ll/literature-retrieval-engine.git", branch = "main" }
-
 [dependency-groups]
 dev = [
     "langfuse",
@@ -34,3 +30,8 @@ dev = [
     "pytest-timeout",
     "httpx",
 ]
+
+
+[tool.uv.sources]
+deepagents = { git = "https://github.com/j0yk1ll/deepagents.git", branch = "master", subdirectory = "libs/deepagents" }
+literature-retrieval-engine = { git = "https://github.com/j0yk1ll/literature-retrieval-engine.git", branch = "main" }
