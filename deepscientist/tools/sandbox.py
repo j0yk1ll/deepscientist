@@ -9,6 +9,9 @@ from langchain.tools import ToolRuntime
 from langchain_core.tools import StructuredTool
 
 from deepscientist.tools.utils import get_settings
+import inspect
+
+from llm_sandbox import SandboxSession
 
 _SANDBOXES: Dict[str, "SandboxHandle"] = {}
 
@@ -21,8 +24,6 @@ class SandboxHandle:
 
 
 def _filter_kwargs(callable_obj: Any, kwargs: Dict[str, Any]) -> Dict[str, Any]:
-    import inspect
-
     try:
         signature = inspect.signature(callable_obj)
     except (TypeError, ValueError):
@@ -116,8 +117,6 @@ def _create_sandbox(
     libraries: Optional[list[str]] = None,
 ) -> Dict[str, Any]:
     """Create a persistent llm-sandbox session and return its identifier."""
-    from llm_sandbox import SandboxSession
-
     settings = get_settings(runtime)
 
     workspace_host = Path(settings.workspace_root).expanduser().resolve()

@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 from langchain.tools import ToolRuntime
 from langchain_core.tools import StructuredTool
+from .clients.searxng_client import SearxngClient
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +23,6 @@ Returns:
 
 
 def _search_web(runtime: ToolRuntime, query: str, max_results: int = 10, include_raw_content: bool = False) -> Dict[str, Any]:
-    # Settings retrieved for consistency / future configurability; currently SearxngClient is self-configured.
-
-    from .clients.searxng_client import SearxngClient
-
     client = SearxngClient()
     try:
         return client.search(query=query, max_results=max_results, include_raw_content=include_raw_content)

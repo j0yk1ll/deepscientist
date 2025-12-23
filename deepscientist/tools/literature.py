@@ -6,6 +6,14 @@ from langchain.tools import ToolRuntime
 from langchain_core.tools import StructuredTool
 
 from deepscientist.tools.utils import get_settings
+from literature_retrieval_engine import (
+    search_papers as engine_search_papers,
+    search_paper_by_doi as engine_search_paper_by_doi,
+    search_paper_by_title as engine_search_paper_by_title,
+    gather_evidence as engine_gather_evidence,
+    search_citations as engine_search_citations,
+    clear_papers_and_evidence as engine_clear_papers_and_evidence,
+)
 
 
 # --------------------------------------------------------------------------------------
@@ -40,43 +48,31 @@ _CLEAR_CACHE_DESC = """Clear in-memory caches for papers and evidence."""
 
 def _search_papers(runtime: ToolRuntime, query: str, k: int = 10) -> List[Any]:
     _ = get_settings(runtime)  # ensures consistent injection; reserved for future config use
-    from literature_retrieval_engine import search_papers as engine_search_papers
-
     return engine_search_papers(query, k=k)
 
 
 def _search_paper_by_doi(runtime: ToolRuntime, doi: str) -> Optional[Any]:
     _ = get_settings(runtime)
-    from literature_retrieval_engine import search_paper_by_doi as engine_search_paper_by_doi
-
     return engine_search_paper_by_doi(doi)
 
 
 def _search_paper_by_title(runtime: ToolRuntime, title: str) -> Optional[Any]:
     _ = get_settings(runtime)
-    from literature_retrieval_engine import search_paper_by_title as engine_search_paper_by_title
-
     return engine_search_paper_by_title(title)
 
 
 def _gather_evidence(runtime: ToolRuntime, query: str) -> List[Any]:
     _ = get_settings(runtime)
-    from literature_retrieval_engine import gather_evidence as engine_gather_evidence
-
     return engine_gather_evidence(query)
 
 
 def _search_citations(runtime: ToolRuntime, doi: str) -> List[Any]:
     _ = get_settings(runtime)
-    from literature_retrieval_engine import search_citations as engine_search_citations
-
     return engine_search_citations(doi)
 
 
 def _clear_papers_and_evidence(runtime: ToolRuntime) -> None:
     _ = get_settings(runtime)
-    from literature_retrieval_engine import clear_papers_and_evidence as engine_clear_papers_and_evidence
-
     engine_clear_papers_and_evidence()
     return None
 

@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-import importlib
-import importlib.util
+import dotenv
+import httpx
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
-
-import httpx
+from langfuse import get_client
+from langfuse.langchain import CallbackHandler
 
 
 @dataclass(slots=True)
@@ -105,8 +105,6 @@ class Settings:
         return client
 
     def _initialize_langfuse(self) -> None:
-        if importlib.util.find_spec("langfuse") is None:
-            return
         if self.langfuse_client is not None or self.langfuse_handler is not None:
             return
         if not self.langfuse_public_key or not self.langfuse_secret_key:
@@ -117,18 +115,15 @@ class Settings:
         if self.langfuse_base_url:
             os.environ.setdefault("LANGFUSE_HOST", self.langfuse_base_url)
 
-        from langfuse import get_client
-        from langfuse.langchain import CallbackHandler
-
-        langfuse = get_client()
-        if not langfuse.auth_check():
+        langfuse_client = get_client()
+        if not langfuse_client.auth_check():
             print(
                 "Langfuse authentication failed. Please check "
                 "LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, and LANGFUSE_HOST."
             )
             return
 
-        self.langfuse_client = langfuse
+        self.langfuse_client = langfuse_client
         self.langfuse_handler = CallbackHandler()
 
 
@@ -146,9 +141,6 @@ class Settings:
         - If .env is missing: do nothing.
         - Does NOT override already-set environment variables.
         """
-        if importlib.util.find_spec("dotenv") is None:
-            return
-
         # The package layout is <repo>/deepscientist/deepscientist/settings.py,
         # so the repository root is one level up from the first parent.
         project_root = Path(__file__).resolve().parents[1]
@@ -156,7 +148,9 @@ class Settings:
         env_path = project_root / ".env"
 
         if not env_path.exists():
-            return
+            raise RuntimeError(f"Failed to find .env file at {env_path}")
 
-        dotenv = importlib.import_module("dotenv")
-        dotenv.load_dotenv(dotenv_path=str(env_path), override=False)
+        try:
+            dotenv.load_dotenv(dotenv_path=str(env_path), override=False)
+        except Exception:
+            raise RuntimeError(f"Failed to load .env file at {env_path}")
