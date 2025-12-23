@@ -149,7 +149,9 @@ class Settings:
         if importlib.util.find_spec("dotenv") is None:
             return
 
-        project_root = Path(__file__).resolve().parents[2]
+        # The package layout is <repo>/deepscientist/deepscientist/settings.py,
+        # so the repository root is one level up from the first parent.
+        project_root = Path(__file__).resolve().parents[1]
 
         env_path = project_root / ".env"
 
