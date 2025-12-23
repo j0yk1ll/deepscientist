@@ -26,4 +26,11 @@ __all__ = [
     "delete_sandbox",
     "execute_code",
     "list_sandboxes",
+    # Filesystem tools
+    "ls",
+    "read_file",
+    "write_file",
+    "edit_file",
+    "glob",
+    "grep",
 ]

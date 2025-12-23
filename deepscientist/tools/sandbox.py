@@ -5,7 +5,10 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 from uuid import uuid4
 
-from deepscientist.settings import Settings
+from langchain.tools import ToolRuntime
+from langchain_core.tools import StructuredTool
+
+from deepscientist.tools.utils import get_settings
 
 _SANDBOXES: Dict[str, "SandboxHandle"] = {}
 
@@ -52,7 +55,61 @@ def _mount_kwargs(workspace_host: Path, workspace_container: str) -> Dict[str, A
     }
 
 
-def create_sandbox(
+# --------------------------------------------------------------------------------------
+# Tool descriptions (fixed)
+# --------------------------------------------------------------------------------------
+
+_CREATE_SANDBOX_DESC = """Create a persistent llm-sandbox session and return its identifier.
+
+Args:
+- lang: language runtime (default: python)
+- backend: optional sandbox backend identifier
+- image: optional container image identifier
+- libraries: optional list of libraries to preinstall or enable
+
+Returns:
+- sandbox_id
+- workspace_host
+- workspace_container
+"""
+
+_DELETE_SANDBOX_DESC = """Close a previously created llm-sandbox session.
+
+Args:
+- sandbox_id: identifier returned by create_sandbox
+
+Returns:
+- deleted: bool
+- sandbox_id (if deleted)
+- error (if not deleted)
+"""
+
+_EXECUTE_CODE_DESC = """Execute code in a running sandbox.
+
+Args:
+- sandbox_id: identifier returned by create_sandbox
+- code: code string to execute
+- libraries: optional list of libraries for this run
+
+Returns:
+- stdout, stderr, exit_code, workspace_container
+- plots (if provided)
+- artifacts (if provided)
+"""
+
+_LIST_SANDBOXES_DESC = """List active sandboxes and their workspace mappings.
+
+Returns:
+- sandboxes: list of {sandbox_id, workspace_host, workspace_container}
+"""
+
+
+# --------------------------------------------------------------------------------------
+# Tool implementations (SYNC ONLY, runtime-aware)
+# --------------------------------------------------------------------------------------
+
+def _create_sandbox(
+    runtime: ToolRuntime,
     lang: str = "python",
     backend: Optional[str] = None,
     image: Optional[str] = None,
@@ -61,7 +118,8 @@ def create_sandbox(
     """Create a persistent llm-sandbox session and return its identifier."""
     from llm_sandbox import SandboxSession
 
-    settings = Settings()
+    settings = get_settings(runtime)
+
     workspace_host = Path(settings.workspace_root).expanduser().resolve()
     workspace_host.mkdir(parents=True, exist_ok=True)
     workspace_container = "/workspace"
@@ -87,6 +145,7 @@ def create_sandbox(
         workspace_host=workspace_host,
         workspace_container=workspace_container,
     )
+
     return {
         "sandbox_id": sandbox_id,
         "workspace_host": str(workspace_host),
@@ -94,21 +153,27 @@ def create_sandbox(
     }
 
 
-def delete_sandbox(sandbox_id: str) -> Dict[str, Any]:
+def _delete_sandbox(runtime: ToolRuntime, sandbox_id: str) -> Dict[str, Any]:
     """Close a previously created llm-sandbox session."""
+    _ = get_settings(runtime)
+
     handle = _SANDBOXES.pop(sandbox_id, None)
     if handle is None:
         return {"deleted": False, "error": f"No sandbox found for id {sandbox_id}"}
+
     handle.session.__exit__(None, None, None)
     return {"deleted": True, "sandbox_id": sandbox_id}
 
 
-def execute_code(
+def _execute_code(
+    runtime: ToolRuntime,
     sandbox_id: str,
     code: str,
     libraries: Optional[list[str]] = None,
 ) -> Dict[str, Any]:
     """Execute code in a running sandbox and return stdout/stderr/exit_code."""
+    _ = get_settings(runtime)
+
     handle = _SANDBOXES.get(sandbox_id)
     if handle is None:
         return {"error": f"No sandbox found for id {sandbox_id}"}
@@ -117,7 +182,8 @@ def execute_code(
     run_kwargs = _filter_kwargs(handle.session.run, run_kwargs)
 
     result = handle.session.run(code, **run_kwargs)
-    response = {
+
+    response: Dict[str, Any] = {
         "stdout": getattr(result, "stdout", None),
         "stderr": getattr(result, "stderr", None),
         "exit_code": getattr(result, "exit_code", None),
@@ -130,8 +196,10 @@ def execute_code(
     return response
 
 
-def list_sandboxes() -> Dict[str, Any]:
+def _list_sandboxes(runtime: ToolRuntime) -> Dict[str, Any]:
     """List active sandboxes and their workspace mappings."""
+    _ = get_settings(runtime)
+
     return {
         "sandboxes": [
             {
@@ -143,6 +211,34 @@ def list_sandboxes() -> Dict[str, Any]:
         ]
     }
 
+
+# --------------------------------------------------------------------------------------
+# Public tool objects (ONLY exports)
+# --------------------------------------------------------------------------------------
+
+create_sandbox = StructuredTool.from_function(
+    name="create_sandbox",
+    description=_CREATE_SANDBOX_DESC,
+    func=_create_sandbox,
+)
+
+delete_sandbox = StructuredTool.from_function(
+    name="delete_sandbox",
+    description=_DELETE_SANDBOX_DESC,
+    func=_delete_sandbox,
+)
+
+execute_code = StructuredTool.from_function(
+    name="execute_code",
+    description=_EXECUTE_CODE_DESC,
+    func=_execute_code,
+)
+
+list_sandboxes = StructuredTool.from_function(
+    name="list_sandboxes",
+    description=_LIST_SANDBOXES_DESC,
+    func=_list_sandboxes,
+)
 
 __all__ = [
     "create_sandbox",
